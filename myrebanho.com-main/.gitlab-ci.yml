@@ -1,0 +1,51 @@
+image: node:22
+
+stages:
+  - build
+  - deploy
+  - invalidate_cache
+
+build:
+  stage: build
+  script:
+    - npm install -g pnpm
+    - pnpm install
+    - test -n "$NEXT_PUBLIC_FIREBASE_API_KEY" || (echo "Missing
+      NEXT_PUBLIC_FIREBASE_API_KEY" && exit 1)
+    - test -n "$NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN" || (echo "Missing
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN" && exit 1)
+    - test -n "$NEXT_PUBLIC_FIREBASE_PROJECT_ID" || (echo "Missing
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID" && exit 1)
+    - test -n "$NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET" || (echo "Missing
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET" && exit 1)
+    - test -n "$NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID" || (echo "Missing
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID" && exit 1)
+    - test -n "$NEXT_PUBLIC_FIREBASE_APP_ID" || (echo "Missing
+      NEXT_PUBLIC_FIREBASE_APP_ID" && exit 1)
+    - pnpm run build
+  artifacts:
+    paths:
+      - ./out
+  only:
+    - main
+
+deploy_to_s3:
+  stage: deploy
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  script:
+    - aws s3 sync ./out s3://$S3_BUCKET_NAME/$S3_SUBFOLDER --delete
+  only:
+    - main
+  needs:
+    - build
+
+invalidate_cloudfront:
+  stage: invalidate_cache
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  script:
+    - aws cloudfront create-invalidation --distribution-id
+      $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
+  only:
+    - main
+  needs:
+    - deploy_to_s3

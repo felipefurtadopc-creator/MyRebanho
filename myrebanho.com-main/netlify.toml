@@ -1,0 +1,8 @@
+# Configuração de build do Netlify — tem prioridade sobre a UI
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+# Runtime oficial do Next.js no Netlify (instalado automaticamente)
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

@@ -1,0 +1,128 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isNonEmptyString(value, min, max) {
+      return value is string &&
+        value.size() >= min &&
+        value.size() <= max;
+    }
+
+   function isValidRebanhoSize(value) {
+      return value in [
+        'Ainda não comecei',
+        'Até 100 animais',
+        '100 a 200 animais',
+        '200 a 500 animais',
+        '500 a 1000 animais',
+        '1000 a 3000 animais',
+        'Mais de 3000 animais'
+      ];
+}
+    function isOptionalUtmSource() {
+      return !('utm_source' in request.resource.data)
+        || (
+          request.resource.data.utm_source is string &&
+          request.resource.data.utm_source.size() <= 100
+        );
+    }
+
+    function isOptionalUtmMedium() {
+      return !('utm_medium' in request.resource.data)
+        || (
+          request.resource.data.utm_medium is string &&
+          request.resource.data.utm_medium.size() <= 100
+        );
+    }
+
+    function isOptionalUtmCampaign() {
+      return !('utm_campaign' in request.resource.data)
+        || (
+          request.resource.data.utm_campaign is string &&
+          request.resource.data.utm_campaign.size() <= 200
+        );
+    }
+
+    function isOptionalUtmContent() {
+      return !('utm_content' in request.resource.data)
+        || (
+          request.resource.data.utm_content is string &&
+          request.resource.data.utm_content.size() <= 200
+        );
+    }
+
+    function isOptionalUtmTerm() {
+      return !('utm_term' in request.resource.data)
+        || (
+          request.resource.data.utm_term is string &&
+          request.resource.data.utm_term.size() <= 200
+        );
+    }
+
+    function hasOnlyAllowedKeys() {
+      return request.resource.data.keys().hasOnly([
+        "email_profissional",
+        "status",
+        "whatsapp",
+        "nome",
+        "tamanho_rebanho",
+        "tipo_operacao",
+        "como_conheceu",
+        "consentimento",
+        "fonte",
+        "pagina_origem",
+        "criado_em",
+        "utm_source",
+        "utm_medium",
+        "utm_campaign",
+        "utm_content",
+        "utm_term",
+      ]);
+    }
+
+    function hasAllRequiredKeys() {
+      return request.resource.data.keys().hasAll([
+        "email_profissional",
+        "status",
+        "whatsapp",
+        "nome",
+        "tamanho_rebanho",
+        "tipo_operacao",
+        "como_conheceu",
+        "consentimento",
+        "fonte",
+        "pagina_origem",
+        "criado_em"
+      ]);
+    }
+
+    match /leads_site/{doc} {
+      allow create: if
+        hasOnlyAllowedKeys()
+        && hasAllRequiredKeys()
+        && isNonEmptyString(request.resource.data.email_profissional, 5, 160)
+        && request.resource.data.status is string
+        && isNonEmptyString(request.resource.data.whatsapp, 8, 30)
+        && isNonEmptyString(request.resource.data.nome, 2, 120)
+        && isValidRebanhoSize(request.resource.data.tamanho_rebanho)
+        && isNonEmptyString(request.resource.data.tipo_operacao, 1, 300)
+        && isNonEmptyString(request.resource.data.como_conheceu, 1, 300)
+        && isNonEmptyString(request.resource.data.pagina_origem, 1, 200)
+        && isOptionalUtmSource()
+        && isOptionalUtmMedium()
+        && isOptionalUtmCampaign()
+        && isOptionalUtmContent()
+        && isOptionalUtmTerm()
+        && request.resource.data.consentimento == true
+        && request.resource.data.fonte == "landing_modal"
+        && request.resource.data.criado_em is timestamp;
+
+      allow read, update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
