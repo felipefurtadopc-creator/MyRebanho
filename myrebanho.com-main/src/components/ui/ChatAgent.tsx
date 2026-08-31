@@ -15,10 +15,10 @@ export default function ChatAgent() {
     setMessages((prev) => [...prev, { sender: 'user', text: userMsg }]);
     setInput('');
 
-    if (window.sendMessageToAgent) {
-      const reply = await window.sendMessageToAgent(userMsg);
-      setMessages((prev) => [...prev, { sender: 'bot', text: reply || 'Erro de conexão.' }]);
-    }
+    if ((window as any).sendMessageToAgent) {
+  const reply = await (window as any).sendMessageToAgent(userMsg);
+  setMessages((prev) => [...prev, { sender: 'bot', text: reply || 'Erro de conexão.' }]);
+  }
   };
 
   return (
