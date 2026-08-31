@@ -22,7 +22,7 @@ export default function ChatAgent() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans">
+    <div className="fixed bottom-[120px] right-6 z-50 font-sans">
       {!isOpen ? (
         // Botão flutuante usando a cor vermelha/telha do site
         <button 
