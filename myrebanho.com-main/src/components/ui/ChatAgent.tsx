@@ -38,7 +38,7 @@ export default function ChatAgent() {
           
           {/* Header (Cabeçalho do Chat) */}
           <div className="bg-[#a63c2e] text-[#f4f4f4] p-4 flex justify-between items-center border-b border-[#d6aa63]/20">
-            <span className="font-semibold tracking-wide">Especialista MyRebanho</span>
+            <span className="font-semibold tracking-wide">MyAssistent</span>
             <button onClick={() => setIsOpen(false)} className="hover:text-[#d6aa63] transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
