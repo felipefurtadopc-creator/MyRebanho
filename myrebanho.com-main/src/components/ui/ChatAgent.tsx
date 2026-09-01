@@ -4,7 +4,7 @@ import { useState } from 'react';
 export default function ChatAgent() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { sender: 'bot', text: 'Olá! Como posso ajudar a otimizar sua gestão pecuária?' }
+    { sender: 'bot', text: 'Olá! Como posso te ajudar Hoje' }
   ]);
   const [input, setInput] = useState('');
 
